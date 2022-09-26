@@ -10,7 +10,7 @@ services:
     networks:
       - network
     restart: always
-    container_name: service_http_${RUNTIME}
+    container_name: megaoasis_filesystem_${RUNTIME}
     volumes:
       - ./logs:/go/application/Logs/
       - /opt/megaoasis-image/magnet:./logs:/go/application/image/

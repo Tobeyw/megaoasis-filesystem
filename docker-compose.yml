@@ -1,0 +1,16 @@
+version: "1.0"
+services:
+  megaoasis_filesystem:
+    build:
+      context: "./"
+      args:
+        RT: ${RUNTIME}
+    ports:
+      - "8080:8080"
+    networks:
+      - network
+    restart: always
+    container_name: service_http_${RUNTIME}
+    volumes:
+      - ./logs:/go/application/Logs/
+      - /opt/megaoasis-image/magnet:./logs:/go/application/image/

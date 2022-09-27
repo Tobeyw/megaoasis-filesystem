@@ -13,7 +13,7 @@ import (
 )
 
 func OpenConfigFile() (Config, error) {
-	absPath, _ := filepath.Abs("./config.yml")
+	absPath, _ := filepath.Abs("./config.yaml")
 	f, err := os.Open(absPath)
 	if err != nil {
 		return Config{}, err
@@ -56,7 +56,7 @@ type Config struct {
 		User     string `yaml:"user"`
 		Pass     string `yaml:"pass"`
 		Database string `yaml:"database"`
-	} `yaml:"database_mysql_local"`
+	} `yaml:"database_mysql_test"`
 	DatabaseMysqlStaging struct {
 		Host     string `yaml:"host"`
 		Port     string `yaml:"port"`
@@ -99,10 +99,10 @@ func (cfg Config) InitializeMysqlClient() (*gorm.DB, error) {
 
 	switch rt {
 	case "test":
-		dsn = cfg.DatabaseMysqlTest.User + ":" + cfg.DatabaseMysqlTest.Pass + "@tcp(" + cfg.DatabaseMysqlTest.Host + ":" + cfg.DatabaseMysqlTest.Port + ")/dbname?charset=utf8mb4&parseTime=True&loc=Local"
+		dsn = cfg.DatabaseMysqlTest.User + ":" + cfg.DatabaseMysqlTest.Pass + "@tcp(" + cfg.DatabaseMysqlTest.Host + ":" + cfg.DatabaseMysqlTest.Port + ")/" + cfg.DatabaseMysqlTest.Database + "?charset=utf8mb4&parseTime=True&loc=Local"
 
 	case "staging":
-		dsn = cfg.DatabaseMysqlStaging.User + ":" + cfg.DatabaseMysqlStaging.Pass + "@tcp(" + cfg.DatabaseMysqlStaging.Host + ":" + cfg.DatabaseMysqlStaging.Port + ")/dbname?charset=utf8mb4&parseTime=True&loc=Local"
+		dsn = cfg.DatabaseMysqlStaging.User + ":" + cfg.DatabaseMysqlStaging.Pass + "@tcp(" + cfg.DatabaseMysqlStaging.Host + ":" + cfg.DatabaseMysqlStaging.Port + ")/" + cfg.DatabaseMysqlStaging.Database + "?charset=utf8mb4&parseTime=True&loc=Local"
 	default:
 		log.Fatalf("runtime environment mismatch")
 	}

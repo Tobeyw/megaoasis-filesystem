@@ -8,12 +8,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"io"
+	"io/ioutil"
 	"log"
+	"metaoasis-filesystem/consts"
 	"metaoasis-filesystem/model"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -47,7 +50,7 @@ func (me *T) ScanNep11Data(assetArr []string) error {
 		Collection: "Nep11Properties",
 		Index:      "scandata",
 		Sort:       bson.M{},
-		Filter:     bson.M{"asset": bson.M{"$in": assetArr}, "properties": bson.M{"$ne": "{}"}},
+		Filter:     bson.M{"asset": "0xaecbad96ccc77c8b147a52e45723a6b5886454e0", "properties": bson.M{"$ne": "{}"}},
 		Query:      []string{},
 	}, ret)
 
@@ -71,10 +74,13 @@ func (me *T) ScanNep11Data(assetArr []string) error {
 					if ok {
 						image = img.(string)
 					}
-					tokenurl, ok := data["tokenURL"]
+					tokenurl, ok := data["tokenURI"]
 					if ok {
 						if image == "" {
-							image = tokenurl.(string)
+							image, err = GetImgFromTokenURL(tokenurl.(string))
+							if err != nil {
+								return err
+							}
 						}
 					}
 					thb, ok6 := data["thumbnail"]
@@ -116,6 +122,30 @@ func (me *T) ScanNep11Data(assetArr []string) error {
 	return nil
 }
 
+func GetImgFromTokenURL(tokenurl string) (string, error) {
+	var image string
+	response, err := http.Get(tokenurl)
+	if err != nil {
+		log.Println("http get error: ", err)
+		return "", err
+	}
+	defer response.Body.Close()
+	body, err2 := ioutil.ReadAll(response.Body)
+	if err2 != nil {
+		log.Println("ioutil read error: ", err)
+	}
+	jsonData := make(map[string]interface{})
+	err = json.Unmarshal([]byte(string(body)), &jsonData)
+	if err != nil {
+		log.Println("imag from json error :", err)
+		return "", err
+	}
+	//处理ipfs
+	ipfs := jsonData["image"].(string)
+	str := strings.Replace(ipfs, ":", "", 1)
+	image = "https://" + consts.IPFS_GATEWAY + "/" + str
+	return image, nil
+}
 func LoadAndSave(me *T, list *model.AssetList) error {
 	image := list.Image
 	thumbnail := list.Thumbnail

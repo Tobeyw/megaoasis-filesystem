@@ -15,31 +15,31 @@ import (
 
 func main() {
 	// loading config file
-	cfg,err := config.OpenConfigFile()
-	if err != nil{
-        fmt.Println(err)
+	cfg, err := config.OpenConfigFile()
+	if err != nil {
+		fmt.Println(err)
 	}
 	ctx := context.TODO()
-	mongoColl,mongoOnline,err := cfg.InitializeMongoClient(ctx)
-	if err != nil{
+	mongoColl, mongoOnline, err := cfg.InitializeMongoClient(ctx)
+	if err != nil {
 		fmt.Println(err)
 	}
-	mysqlColl, err :=cfg.InitializeMysqlClient()
-	if err != nil{
+	mysqlColl, err := cfg.InitializeMysqlClient()
+	if err != nil {
 		fmt.Println(err)
 	}
-	mongoClient :=model.T{
+	mongoClient := model.T{
 		Db_online: mongoOnline,
-		C_online: mongoColl,
-		Ctx: ctx,
+		C_online:  mongoColl,
+		Ctx:       ctx,
 	}
 
 	assetDAO := model.NewAssetListDao(mysqlColl)
 
-	fmt.Sprintf(mongoClient.Db_online,assetDAO)
+	fmt.Sprintf(mongoClient.Db_online, assetDAO)
 
-	apiClent :=api.T{
-		Client: &mongoClient,
+	apiClent := api.T{
+		Client:      &mongoClient,
 		MysqlClient: assetDAO,
 	}
 	//listening.....
@@ -53,15 +53,15 @@ func main() {
 	//router.TrustedPlatform = "X-CDN-IP"
 
 	router.SetTrustedProxies([]string{"127.0.0.1"})
-    //router.StaticFile("/favicon.ico", "./image/favicon.ico")
+	//router.StaticFile("/favicon.ico", "./image/favicon.ico")
 	router.GET("/upload", func(c *gin.Context) {
 
 		copyContext := c.Copy()
 		// 异步处理
 		go func() {
 			asset := copyContext.Query("asset")
-			tokenid :=copyContext.Query("tokenid")
-			imagepath :="./image/"+ asset + "/image/" + tokenid
+			tokenid := copyContext.Query("tokenid")
+			imagepath := "./image/" + asset + "/image/" + tokenid
 			copyContext.File(imagepath)
 		}()
 
@@ -72,7 +72,7 @@ func main() {
 		market := consts.Market_Main
 		switch rt {
 		case "test":
-			market  = consts.Market_Test
+			market = consts.Market_Test
 		case "staging":
 			market = consts.Market_Main
 		default:
@@ -84,7 +84,7 @@ func main() {
 		if err != nil {
 			fmt.Println("conn :", err)
 		}
-		cs, err := conn.Watch(context.TODO(),mongo.Pipeline{})
+		cs, err := conn.Watch(context.TODO(), mongo.Pipeline{})
 		//cs, err := conn.Watch(context.TODO(),mongo.Pipeline{bson.D{{"$match", bson.D{{"market", market},{"eventname", "AddAsset"}}}}})
 		if err != nil {
 			//return nil,err
@@ -104,33 +104,28 @@ func main() {
 			asset := eventItem["asset"].(string)
 			event := eventItem["eventname"].(string)
 
-			fmt.Println(event=="AddAsset",asset)
-			if event=="AddAsset" {
+			fmt.Println(event == "AddAsset", asset)
+			if event == "AddAsset" {
 				assetArr := []string{asset}
-				err  = apiClent.ScanNep11Data(assetArr)
+				err = apiClent.ScanNep11Data(assetArr)
 				if err != nil {
-					fmt.Println("watching Error :: scan data err: ",err)
+					fmt.Println("watching Error :: scan data err: ", err)
 				}
 			}
 		}
 	}()
 
-
-
-
 	//// scan data
 	fmt.Println("scaning.....")
-	assetArr ,err:= apiClent.GetMarketWhiteList()
+	assetArr, err := apiClent.GetMarketWhiteList()
 	if err != nil {
-		log.Fatal("getwhitelist error: ",err)
+		log.Fatal("getwhitelist error: ", err)
 	}
-	err  = apiClent.ScanNep11Data(assetArr)
+	err = apiClent.ScanNep11Data(assetArr)
 
 	if err != nil {
-		fmt.Println("Error :: scan data err: ",err)
+		fmt.Println("Error :: scan data err: ", err)
 	}
-
-
 
 	router.Run(":8080")
 

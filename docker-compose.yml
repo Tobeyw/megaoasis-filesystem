@@ -11,4 +11,4 @@ services:
     container_name: megaoasis_filesystem_${RUNTIME}
     volumes:
       - ./logs:/go/application/Logs/
-      - /opt/megaoasis-image/magnet:./logs:/go/application/image/
+      - /opt/megaoasis-image/magnet/:/go/application/image/

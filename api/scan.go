@@ -139,7 +139,7 @@ func GetImgFromTokenURL(tokenurl string) (string, error) {
 	err = json.Unmarshal([]byte(string(body)), &jsonData)
 	if err != nil {
 		log.Println("imag from json error :", err)
-		//return "", err
+		return "", nil
 	}
 	//处理ipfs
 	ipfs := jsonData["image"].(string)

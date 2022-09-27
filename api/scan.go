@@ -50,7 +50,7 @@ func (me *T) ScanNep11Data(assetArr []string) error {
 		Collection: "Nep11Properties",
 		Index:      "scandata",
 		Sort:       bson.M{},
-		Filter:     bson.M{"asset": "0xaecbad96ccc77c8b147a52e45723a6b5886454e0", "properties": bson.M{"$ne": "{}"}},
+		Filter:     bson.M{"asset": bson.M{"$in": assetArr}, "properties": bson.M{"$ne": "{}"}},
 		Query:      []string{},
 	}, ret)
 
@@ -138,7 +138,7 @@ func GetImgFromTokenURL(tokenurl string) (string, error) {
 	fmt.Println(string(body))
 	err = json.Unmarshal([]byte(string(body)), &jsonData)
 	if err != nil {
-		log.Println("imag from json error :", err)
+		log.Println("imag from json error :", err, tokenurl)
 		return "", nil
 	}
 	//处理ipfs

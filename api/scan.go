@@ -135,10 +135,11 @@ func GetImgFromTokenURL(tokenurl string) (string, error) {
 		log.Println("ioutil read error: ", err)
 	}
 	jsonData := make(map[string]interface{})
+	fmt.Println(string(body))
 	err = json.Unmarshal([]byte(string(body)), &jsonData)
 	if err != nil {
 		log.Println("imag from json error :", err)
-		return "", err
+		//return "", err
 	}
 	//处理ipfs
 	ipfs := jsonData["image"].(string)

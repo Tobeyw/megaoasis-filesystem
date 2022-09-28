@@ -11,6 +11,7 @@ import (
 	"metaoasis-filesystem/consts"
 	"metaoasis-filesystem/model"
 	"os"
+	"time"
 )
 
 func main() {
@@ -42,6 +43,7 @@ func main() {
 		Client:      &mongoClient,
 		MysqlClient: assetDAO,
 	}
+	fmt.Println(apiClent)
 	//listening.....
 	//======================
 	router := gin.Default()
@@ -51,19 +53,18 @@ func main() {
 	// using a CDN service
 	//router.TrustedPlatform = gin.PlatformGoogleAppEngine
 	//router.TrustedPlatform = "X-CDN-IP"
+	//
+	//router.SetTrustedProxies([]string{"127.0.0.1"})
 
-	router.SetTrustedProxies([]string{"127.0.0.1"})
-	//router.StaticFile("/favicon.ico", "./image/favicon.ico")
+	//router.StaticFile("/","./image/")
 	router.GET("/upload", func(c *gin.Context) {
-
-		copyContext := c.Copy()
-		// 异步处理
-		go func() {
-			asset := copyContext.Query("asset")
-			tokenid := copyContext.Query("tokenid")
-			imagepath := "./image/" + asset + "/image/" + tokenid
-			copyContext.File(imagepath)
-		}()
+		pwd, _ := os.Getwd()
+		//copyContext := c.Copy()
+		time.Sleep(1 * time.Second)
+		asset := c.Query("asset")
+		tokenid := c.Query("tokenid")
+		imagepath := pwd + "\\image\\" + asset + "\\image\\" + tokenid
+		c.File(imagepath)
 
 	})
 	//watching.....

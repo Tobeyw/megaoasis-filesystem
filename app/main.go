@@ -64,7 +64,7 @@ func main() {
 		asset := c.Query("asset")
 		tokenid := c.Query("tokenid")
 		//imagepath := pwd + "\\image\\" + asset + "\\image\\" + tokenid
-		imagepath := pwd + "/image/" + asset + "/image/git " + tokenid
+		imagepath := pwd + "/image/" + asset + "/image/" + tokenid
 		fmt.Println(imagepath)
 		c.File(imagepath)
 

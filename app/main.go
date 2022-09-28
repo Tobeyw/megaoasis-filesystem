@@ -57,14 +57,14 @@ func main() {
 	//router.SetTrustedProxies([]string{"127.0.0.1"})
 
 	//router.StaticFile("/","./image/")
-	router.GET("/upload", func(c *gin.Context) {
+	router.GET("/", func(c *gin.Context) {
 		pwd, _ := os.Getwd()
 		//copyContext := c.Copy()
 		time.Sleep(1 * time.Second)
 		asset := c.Query("asset")
 		tokenid := c.Query("tokenid")
 		//imagepath := pwd + "\\image\\" + asset + "\\image\\" + tokenid
-		imagepath := pwd + "/image/" + asset + "/image/" + tokenid
+		imagepath := pwd + "/image/" + asset + "/image/git " + tokenid
 		fmt.Println(imagepath)
 		c.File(imagepath)
 

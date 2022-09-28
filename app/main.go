@@ -63,7 +63,8 @@ func main() {
 		time.Sleep(1 * time.Second)
 		asset := c.Query("asset")
 		tokenid := c.Query("tokenid")
-		imagepath := pwd + "\\image\\" + asset + "\\image\\" + tokenid
+		//imagepath := pwd + "\\image\\" + asset + "\\image\\" + tokenid
+		imagepath := pwd + "/image/" + asset + "/image/" + tokenid
 		fmt.Println(imagepath)
 		c.File(imagepath)
 

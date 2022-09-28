@@ -57,14 +57,34 @@ func main() {
 	//router.SetTrustedProxies([]string{"127.0.0.1"})
 
 	//router.StaticFile("/","./image/")
-	router.GET("/", func(c *gin.Context) {
+	router.GET("/images/:asset/:tokenid", func(c *gin.Context) {
+		//image := "image"
 		pwd, _ := os.Getwd()
 		//copyContext := c.Copy()
 		time.Sleep(1 * time.Second)
-		asset := c.Query("asset")
-		tokenid := c.Query("tokenid")
+
+		asset := c.Param("asset")
+		tokenid := c.Param("tokenid")
+
 		//imagepath := pwd + "\\image\\" + asset + "\\image\\" + tokenid
 		imagepath := pwd + "/image/" + asset + "/image/" + tokenid
+		fmt.Println(imagepath)
+		c.File(imagepath)
+
+	})
+
+	router.GET("/thumbnail/:asset/:tokenid", func(c *gin.Context) {
+		//image := "image"
+		pwd, _ := os.Getwd()
+		//copyContext := c.Copy()
+		time.Sleep(1 * time.Second)
+		p := c.Params
+		u := c.Request.RequestURI
+		fmt.Println("param: ", p, u)
+		asset := c.Param("asset")
+		tokenid := c.Param("tokenid")
+		//imagepath := pwd + "\\image\\" + asset + "\\image\\" + tokenid
+		imagepath := pwd + "/image/" + asset + "/thumbnail/" + tokenid
 		fmt.Println(imagepath)
 		c.File(imagepath)
 

@@ -113,9 +113,7 @@ func (me *T) ScanNep11Data(assetArr []string) error {
 	//me.MysqlClient.BatchesCreate(result)
 	for i, item := range result {
 		go LoadAndSave(me, item)
-
 		if i == len(result)-1 {
-
 		}
 	}
 
@@ -162,7 +160,7 @@ func LoadAndSave(me *T, list *model.AssetList) error {
 		}
 		// download image
 		if image != "" {
-			imagePath := createDateDir(currentPath+"/image/", asset+"/image/")
+			imagePath := CreateDateDir(currentPath+"/image/", asset+"/image/")
 			path := imagePath + "/" + tokenid
 			err := LoadImage(image, path)
 			if err != nil {
@@ -171,7 +169,7 @@ func LoadAndSave(me *T, list *model.AssetList) error {
 			list.Image = "/image/" + asset + "/image/" + tokenid
 		}
 		if thumbnail != "" {
-			thumbnailPath := createDateDir(currentPath+"/image/", asset+"/thumbnail/")
+			thumbnailPath := CreateDateDir(currentPath+"/image/", asset+"/thumbnail/")
 			path := thumbnailPath + "/" + tokenid
 			err := LoadImage(thumbnail, path)
 			if err != nil {
@@ -232,7 +230,7 @@ func LoadImage(imagurl string, path string) error {
 	return nil
 }
 
-func createDateDir(basepath string, folderName string) string {
+func CreateDateDir(basepath string, folderName string) string {
 
 	folderPath := filepath.Join(basepath, folderName)
 	if _, err := os.Stat(folderPath); os.IsNotExist(err) {

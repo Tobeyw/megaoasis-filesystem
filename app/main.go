@@ -10,6 +10,7 @@ import (
 	"metaoasis-filesystem/config"
 	"metaoasis-filesystem/consts"
 	"metaoasis-filesystem/model"
+	"net/http"
 	"os"
 	"time"
 )
@@ -87,8 +88,53 @@ func main() {
 		imagepath := pwd + "/image/" + asset + "/thumbnail/" + tokenid
 		fmt.Println(imagepath)
 		c.File(imagepath)
+	})
+
+	router.POST("/upload", func(c *gin.Context) {
+		asset := c.PostForm("asset")
+		tokenid := c.PostForm("tokenid")
+		isImage := c.PostForm("isImage")
+		image := ""
+		thumbnail := ""
+
+		file, err := c.FormFile("file")
+		if err != nil {
+			c.String(http.StatusBadRequest, "get form err: %s", err.Error())
+			return
+		}
+		currentPath, err := os.Getwd()
+		if err != nil {
+			log.Fatal("get current path error :", err)
+		}
+		imagePath := api.CreateDateDir(currentPath+"/image/", asset+"/image/")
+		image = imagePath
+		if isImage == "false" {
+			imagePath = api.CreateDateDir(currentPath+"/image/", asset+"/thumbnail/")
+			thumbnail = imagePath
+			image = ""
+		}
+
+		if err := c.SaveUploadedFile(file, imagePath+"/"+tokenid); err != nil {
+			c.String(http.StatusBadRequest, "upload file err: %s", err.Error())
+			return
+		}
+
+		nft := model.AssetList{
+			Asset:     asset,
+			TokenId:   tokenid,
+			Image:     image,
+			Thumbnail: thumbnail,
+			Timestamp: time.Now().Unix(),
+		}
+		err = apiClent.MysqlClient.Create(&nft)
+		if err != nil {
+			c.String(http.StatusOK, "insert err")
+		} else {
+			c.String(http.StatusOK, "Uploaded successfully %d files with fields name=%s and email=%s.")
+		}
 
 	})
+
 	//watching.....
 	go func() {
 		rt := os.ExpandEnv("${RUNTIME}")

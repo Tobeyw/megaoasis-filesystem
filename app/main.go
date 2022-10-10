@@ -37,7 +37,6 @@ func main() {
 	}
 
 	assetDAO := model.NewAssetListDao(mysqlColl)
-
 	fmt.Sprintf(mongoClient.Db_online, assetDAO)
 
 	apiClent := api.T{

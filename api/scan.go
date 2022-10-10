@@ -2,7 +2,9 @@ package api
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
@@ -133,7 +135,7 @@ func GetImgFromTokenURL(tokenurl string) (string, error) {
 		log.Println("ioutil read error: ", err)
 	}
 	jsonData := make(map[string]interface{})
-	fmt.Println(string(body))
+	//fmt.Println(string(body))
 	err = json.Unmarshal([]byte(string(body)), &jsonData)
 	if err != nil {
 		log.Println("imag from json error :", err, tokenurl)
@@ -155,8 +157,8 @@ func LoadAndSave(me *T, list *model.AssetList) error {
 		return err
 	}
 	//查看本地是否存在数据
-	path := currentPath + "/image/" + asset + "/" + tokenid
-	isExit, _ := PathExists(path)
+	checkpath := currentPath + "/image/" + asset + "/" + tokenid
+	isExit, _ := PathExists(checkpath)
 	if !isExit {
 		if err != nil {
 			return err
@@ -273,4 +275,50 @@ func tokenurl(url string) string {
 	}
 
 	return url
+}
+
+func IntToBytesLittleEndian(n int64, bytesLength byte) ([]byte, error) {
+	switch bytesLength {
+	case 1:
+		tmp := int8(n)
+		bytesBuffer := bytes.NewBuffer([]byte{})
+		binary.Write(bytesBuffer, binary.LittleEndian, &tmp)
+		return bytesBuffer.Bytes(), nil
+	case 2:
+		tmp := int16(n)
+		bytesBuffer := bytes.NewBuffer([]byte{})
+		binary.Write(bytesBuffer, binary.LittleEndian, &tmp)
+		return bytesBuffer.Bytes(), nil
+	case 3:
+		tmp := int32(n)
+		bytesBuffer := bytes.NewBuffer([]byte{})
+		binary.Write(bytesBuffer, binary.LittleEndian, &tmp)
+		return bytesBuffer.Bytes()[0:3], nil
+	case 4:
+		tmp := int32(n)
+		bytesBuffer := bytes.NewBuffer([]byte{})
+		binary.Write(bytesBuffer, binary.LittleEndian, &tmp)
+		return bytesBuffer.Bytes(), nil
+	case 5:
+		tmp := n
+		bytesBuffer := bytes.NewBuffer([]byte{})
+		binary.Write(bytesBuffer, binary.LittleEndian, &tmp)
+		return bytesBuffer.Bytes()[0:5], nil
+	case 6:
+		tmp := n
+		bytesBuffer := bytes.NewBuffer([]byte{})
+		binary.Write(bytesBuffer, binary.LittleEndian, &tmp)
+		return bytesBuffer.Bytes()[0:6], nil
+	case 7:
+		tmp := n
+		bytesBuffer := bytes.NewBuffer([]byte{})
+		binary.Write(bytesBuffer, binary.LittleEndian, &tmp)
+		return bytesBuffer.Bytes()[0:7], nil
+	case 8:
+		tmp := n
+		bytesBuffer := bytes.NewBuffer([]byte{})
+		binary.Write(bytesBuffer, binary.LittleEndian, &tmp)
+		return bytesBuffer.Bytes(), nil
+	}
+	return nil, fmt.Errorf("IntToBytesLittleEndian b param is invaild")
 }

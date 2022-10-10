@@ -8,15 +8,15 @@ import (
 	"os"
 )
 
-func (me *T) GetMarketWhiteList() ([]string,error) {
+func (me *T) GetMarketWhiteList() ([]string, error) {
 	message := make(json.RawMessage, 0)
 	ret := &message
 
 	rt := os.ExpandEnv("${RUNTIME}")
-    market := consts.Market_Main
+	market := consts.Market_Main
 	switch rt {
 	case "test":
-		market  = consts.Market_Test
+		market = consts.Market_Test
 	case "staging":
 		market = consts.Market_Main
 	default:
@@ -50,7 +50,7 @@ func (me *T) GetMarketWhiteList() ([]string,error) {
 		}, ret)
 
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	var assetArr []string
@@ -59,9 +59,5 @@ func (me *T) GetMarketWhiteList() ([]string,error) {
 			assetArr = append(assetArr, item["asset"].(string))
 		}
 	}
-	return assetArr,nil
+	return assetArr, nil
 }
-
-
-
-

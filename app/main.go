@@ -89,6 +89,19 @@ func main() {
 		c.File(imagepath)
 	})
 
+	router.POST("/rename", func(c *gin.Context) {
+		srcdir := c.PostForm("srcdir")
+		dstdir := c.PostForm("dstdir")
+		err := api.ImagRename(srcdir, dstdir)
+
+		if err != nil {
+			c.String(http.StatusBadRequest, "copyRename err", err)
+		} else {
+			c.String(http.StatusOK, "copyRename success")
+		}
+
+	})
+
 	router.POST("/upload", func(c *gin.Context) {
 		asset := c.PostForm("asset")
 		tokenid := c.PostForm("tokenid")
@@ -186,6 +199,7 @@ func main() {
 	//// scan data
 	fmt.Println("scaning.....")
 	assetArr, err := apiClent.GetMarketWhiteList()
+	//assetArr := []string{}
 	if err != nil {
 		log.Fatal("getwhitelist error: ", err)
 	}

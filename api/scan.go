@@ -74,10 +74,10 @@ func (me *T) ScanNep11Data(assetArr []string) error {
 					if ok {
 						image = img.(string)
 					}
-					tokenurl, ok := data["tokenURI"]
+					tokenuri, ok := data["tokenURI"]
 					if ok {
 						if image == "" {
-							image, err = GetImgFromTokenURL(tokenurl.(string))
+							image, err = GetImgFromTokenURL(tokenurl(tokenuri.(string)))
 							if err != nil {
 								return err
 							}
@@ -261,4 +261,16 @@ func PathExists(path string) (bool, error) {
 	}
 	//其它类型，不确定是否存在
 	return false, err
+}
+
+func tokenurl(url string) string {
+
+	str := url[:4]
+	if str == "ipfs" {
+		gateway := "https://cloudflare-ipfs.com"
+		httpurl := strings.Replace(url, "ipfs.io", gateway, 1)
+		return httpurl
+	}
+
+	return url
 }

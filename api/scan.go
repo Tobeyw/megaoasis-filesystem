@@ -150,11 +150,14 @@ func LoadAndSave(me *T, list *model.AssetList) error {
 	thumbnail := list.Thumbnail
 	asset := list.Asset
 	tokenid := list.TokenId
-
-	//查看本地数据库是否存在
-	assetLocal, found, _ := me.MysqlClient.FindByAssetTokenid(asset, tokenid)
-	if found == false || (found == false && assetLocal.Image == "") {
-		currentPath, err := os.Getwd()
+	currentPath, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	//查看本地是否存在数据
+	path := currentPath + "/image/" + asset + "/" + tokenid
+	isExit, _ := PathExists(path)
+	if !isExit {
 		if err != nil {
 			return err
 		}
@@ -246,11 +249,16 @@ func CreateDateDir(basepath string, folderName string) string {
 	return folderPath
 }
 
-// check file exist
-func isDirExist(filename string) bool {
-	_, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	//当为空文件或文件夹存在
+	if err == nil {
+		return true, nil
 	}
-	return true
+	//os.IsNotExist(err)为true，文件或文件夹不存在
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	//其它类型，不确定是否存在
+	return false, err
 }

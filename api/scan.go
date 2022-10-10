@@ -187,10 +187,10 @@ func LoadAndSave(me *T, list *model.AssetList) error {
 			list.Thumbnail = "/image/" + asset + "/thumbnail/" + tokenid
 		}
 
-		err = me.MysqlClient.Create(list)
-		if err != nil {
-			return err
-		}
+		//err = me.MysqlClient.Create(list)
+		//if err != nil {
+		//	return err
+		//}
 		fmt.Println("update one record successfully")
 	}
 

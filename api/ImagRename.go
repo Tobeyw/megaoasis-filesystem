@@ -10,10 +10,9 @@ import (
 	"io/ioutil"
 	"os"
 	"strconv"
-	"strings"
 )
 
-func ImagRename(src string, to string) error {
+func ImagRename(src string, to string, baseuri string) error {
 
 	files, err := ioutil.ReadDir(src)
 	if err != nil {
@@ -21,12 +20,10 @@ func ImagRename(src string, to string) error {
 	} // 获取文件名组成的切片，并遍历打印每一个文件名
 	for _, file := range files {
 		name := file.Name()
-		oldname := strings.Split(name, ".")[0]
-		newfilename, err := BigIntBase64(oldname)
-		if err != nil {
-			return err
-		}
-		err = CopyAndRename(src+"/"+file.Name(), to+"/"+newfilename)
+		oldname := baseuri + name
+		newfilename := imgname(oldname)
+
+		err = CopyAndRename(src+"\\"+file.Name(), to+"\\"+newfilename)
 		if err != nil {
 			return err
 		}

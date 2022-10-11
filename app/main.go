@@ -92,7 +92,8 @@ func main() {
 	router.POST("/rename", func(c *gin.Context) {
 		srcdir := c.PostForm("srcdir")
 		dstdir := c.PostForm("dstdir")
-		err := api.ImagRename(srcdir, dstdir)
+		baseuri := c.PostForm("baseuri")
+		err := api.ImagRename(srcdir, dstdir, baseuri)
 
 		if err != nil {
 			c.String(http.StatusBadRequest, "copyRename err", err)

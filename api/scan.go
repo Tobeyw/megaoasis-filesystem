@@ -157,12 +157,14 @@ func LoadAndSave(me *T, list *model.AssetList) error {
 	image := list.Image
 	thumbnail := list.Thumbnail
 	asset := list.Asset
-	tokenid := list.TokenId
+	//tokenid := list.TokenId
 	currentPath, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 	//查看本地是否存在数据
+	d := imgname(image)
+	fmt.Println(d)
 	checkpath := currentPath + "/image/" + asset + "/" + imgname(image)
 	isExit, _ := PathExists(checkpath)
 	if !isExit {
@@ -172,7 +174,7 @@ func LoadAndSave(me *T, list *model.AssetList) error {
 		// download image
 		if image != "" {
 			imagePath := CreateDateDir(currentPath+"/image/", asset+"/image/")
-			path := imagePath + "/" + tokenid
+			path := imagePath + "/" + imgname(image)
 			err := LoadImage(image, path)
 			if err != nil {
 				return err
@@ -181,7 +183,7 @@ func LoadAndSave(me *T, list *model.AssetList) error {
 		}
 		if thumbnail != "" {
 			thumbnailPath := CreateDateDir(currentPath+"/image/", asset+"/thumbnail/")
-			path := thumbnailPath + "/" + tokenid
+			path := thumbnailPath + "/" + imgname(thumbnail)
 			err := LoadImage(thumbnail, path)
 			if err != nil {
 				return err

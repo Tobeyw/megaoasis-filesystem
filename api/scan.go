@@ -96,6 +96,8 @@ func (me *T) ScanNep11Data(assetArr []string) error {
 							return err22
 						}
 						thumbnail = string(tb[:])
+					} else {
+						thumbnail = image
 					}
 				} else {
 					return err
@@ -175,7 +177,7 @@ func LoadAndSave(me *T, list *model.AssetList) error {
 			if err != nil {
 				return err
 			}
-			list.Image = "/image/" + asset + "/image/" + tokenid
+			list.Image = "/image/" + asset + "/image/" + imgname(image)
 		}
 		if thumbnail != "" {
 			thumbnailPath := CreateDateDir(currentPath+"/image/", asset+"/thumbnail/")
@@ -184,7 +186,7 @@ func LoadAndSave(me *T, list *model.AssetList) error {
 			if err != nil {
 				return err
 			}
-			list.Thumbnail = "/image/" + asset + "/thumbnail/" + tokenid
+			list.Thumbnail = "/image/" + asset + "/thumbnail/" + imgname(thumbnail)
 		}
 
 		//err = me.MysqlClient.Create(list)
@@ -279,4 +281,8 @@ func tokenurl(url string) string {
 	}
 
 	return url
+}
+
+func imgname(url string) string {
+	return strings.ReplaceAll(url, "/", "")
 }

@@ -78,7 +78,7 @@ func (me *T) ScanNep11Data(assetArr []string) error {
 					tokenuri, ok := data["tokenURI"]
 					if ok {
 						if image == "" {
-							checkpath := currentPath + "/image/" + asset + "/" + tokenid
+							checkpath := currentPath + "/image/" + asset + "/" + imgname(image)
 							isExit, _ := PathExists(checkpath)
 							if isExit {
 								continue
@@ -163,7 +163,7 @@ func LoadAndSave(me *T, list *model.AssetList) error {
 		return err
 	}
 	//查看本地是否存在数据
-	checkpath := currentPath + "/image/" + asset + "/" + tokenid
+	checkpath := currentPath + "/image/" + asset + "/" + imgname(image)
 	isExit, _ := PathExists(checkpath)
 	if !isExit {
 		if err != nil {

@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/gin-gonic/gin v1.8.1
+	github.com/joeqian10/neo3-gogogo v1.0.0
 	go.mongodb.org/mongo-driver v1.10.2
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.3.6

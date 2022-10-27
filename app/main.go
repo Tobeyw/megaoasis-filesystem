@@ -56,51 +56,48 @@ func main() {
 	//
 	//router.SetTrustedProxies([]string{"127.0.0.1"})
 
-	//router.StaticFile("/","./image/")
-	go func() {
-		router.GET("/images/:asset/:tokenid", func(c *gin.Context) {
-			//image := "image"
-			pwd, _ := os.Getwd()
-			//copyContext := c.Copy()
-			time.Sleep(1 * time.Second)
+	router.StaticFile("/", "./image/")
 
-			asset := c.Param("asset")
-			tokenid := c.Param("tokenid")
+	router.GET("/images/:asset/:tokenid", func(c *gin.Context) {
+		//image := "image"
+		pwd, _ := os.Getwd()
+		//copyContext := c.Copy()
+		time.Sleep(1 * time.Second)
 
-			//imagepath := pwd + "\\image\\" + asset + "\\image\\" + tokenid
-			imagepath := pwd + "/image/" + asset + "/image/" + tokenid
-			c.File(imagepath)
+		asset := c.Param("asset")
+		tokenid := c.Param("tokenid")
 
-		})
-	}()
+		//imagepath := pwd + "\\image\\" + asset + "\\image\\" + tokenid
+		imagepath := pwd + "/image/" + asset + "/image/" + tokenid
+		c.File(imagepath)
 
-	go func() {
-		router.GET("/thumbnail/:asset/:tokenid", func(c *gin.Context) {
-			pwd, _ := os.Getwd()
-			time.Sleep(1 * time.Second)
-			asset := c.Param("asset")
-			tokenid := c.Param("tokenid")
-			//imagepath := pwd + "\\image\\" + asset + "\\thumbnail\\" + tokenid
-			imagepath := pwd + "/image/" + asset + "/thumbnail/" + tokenid
+	})
 
-			c.File(imagepath)
+	router.GET("/thumbnail/:asset/:tokenid", func(c *gin.Context) {
+		pwd, _ := os.Getwd()
+		time.Sleep(1 * time.Second)
+		asset := c.Param("asset")
+		tokenid := c.Param("tokenid")
+		//imagepath := pwd + "\\image\\" + asset + "\\thumbnail\\" + tokenid
+		imagepath := pwd + "/image/" + asset + "/thumbnail/" + tokenid
 
-			//async
-			//copyContext := c.Copy()
-			//go func() {
-			//	time.Sleep(1 * time.Second)
-			//	asset := copyContext.Param("asset")
-			//	tokenid := copyContext.Param("tokenid")
-			//	imagepath := pwd + "\\image\\" + asset + "\\thumbnail\\" + tokenid
-			//	//imagepath := pwd + "/image/" + asset + "/thumbnail/" + tokenid
-			//	//copyContext.File(imagepath)
-			//	fmt.Println(imagepath)
-			//	 go c.File(imagepath)
-			//}()
+		c.File(imagepath)
 
-		})
+		//async
+		//copyContext := c.Copy()
+		//go func() {
+		//	time.Sleep(1 * time.Second)
+		//	asset := copyContext.Param("asset")
+		//	tokenid := copyContext.Param("tokenid")
+		//	imagepath := pwd + "\\image\\" + asset + "\\thumbnail\\" + tokenid
+		//	//imagepath := pwd + "/image/" + asset + "/thumbnail/" + tokenid
+		//	//copyContext.File(imagepath)
+		//	fmt.Println(imagepath)
+		//	 go c.File(imagepath)
+		//}()
 
-	}()
+	})
+
 	//router.GET("/thumbnail/:asset/:tokenid", func(c *gin.Context) {
 	//	//image := "image"
 	//	pwd, _ := os.Getwd()

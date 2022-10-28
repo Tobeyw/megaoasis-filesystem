@@ -4,11 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"metaoasis-filesystem/api"
 	"metaoasis-filesystem/config"
-	"metaoasis-filesystem/consts"
 	"metaoasis-filesystem/model"
 	"net/http"
 	"os"
@@ -83,50 +81,7 @@ func main() {
 
 		c.File(imagepath)
 
-		//async
-		//copyContext := c.Copy()
-		//go func() {
-		//	time.Sleep(1 * time.Second)
-		//	asset := copyContext.Param("asset")
-		//	tokenid := copyContext.Param("tokenid")
-		//	imagepath := pwd + "\\image\\" + asset + "\\thumbnail\\" + tokenid
-		//	//imagepath := pwd + "/image/" + asset + "/thumbnail/" + tokenid
-		//	//copyContext.File(imagepath)
-		//	fmt.Println(imagepath)
-		//	 go c.File(imagepath)
-		//}()
-
 	})
-
-	//router.GET("/thumbnail/:asset/:tokenid", func(c *gin.Context) {
-	//	//image := "image"
-	//	pwd, _ := os.Getwd()
-	//	//copyContext := c.Copy()
-	//	time.Sleep(1 * time.Second)
-	//	p := c.Params
-	//	u := c.Request.RequestURI
-	//	fmt.Println("param: ", p, u)
-	//	asset := c.Param("asset")
-	//	tokenid := c.Param("tokenid")
-	//	imagepath := pwd + "\\image\\" + asset + "\\thumbnail\\" + tokenid
-	//	//imagepath := pwd + "/image/" + asset + "/thumbnail/" + tokenid
-	//	fmt.Println(imagepath)
-	//	go c.File(imagepath)
-	//
-	//	//async
-	//	//copyContext := c.Copy()
-	//	//go func() {
-	//	//	time.Sleep(1 * time.Second)
-	//	//	asset := copyContext.Param("asset")
-	//	//	tokenid := copyContext.Param("tokenid")
-	//	//	imagepath := pwd + "\\image\\" + asset + "\\thumbnail\\" + tokenid
-	//	//	//imagepath := pwd + "/image/" + asset + "/thumbnail/" + tokenid
-	//	//	//copyContext.File(imagepath)
-	//	//	fmt.Println(imagepath)
-	//	//	 go c.File(imagepath)
-	//	//}()
-	//
-	//})
 
 	router.POST("/rename", func(c *gin.Context) {
 		srcdir := c.PostForm("srcdir")
@@ -187,67 +142,67 @@ func main() {
 
 	})
 
-	//watching.....
-	go func() {
-		rt := os.ExpandEnv("${RUNTIME}")
-		market := consts.Market_Main
-		switch rt {
-		case "test":
-			market = consts.Market_Test
-		case "staging":
-			market = consts.Market_Main
-		default:
-			fmt.Sprintf("runtime environment mismatch")
-		}
-
-		fmt.Println(market)
-		conn, err := apiClent.GetCollection(struct{ Collection string }{Collection: "MarketNotification"})
-		if err != nil {
-			fmt.Println("conn :", err)
-		}
-		cs, err := conn.Watch(context.TODO(), mongo.Pipeline{})
-		//cs, err := conn.Watch(context.TODO(),mongo.Pipeline{bson.D{{"$match", bson.D{{"market", market},{"eventname", "AddAsset"}}}}})
-		if err != nil {
-			//return nil,err
-			fmt.Println("watch error:", err)
-		}
-		fmt.Println("watching.....")
-
-		for cs.Next(context.TODO()) {
-			fmt.Println("watching addAsset")
-			var changeEvent map[string]interface{}
-			err := cs.Decode(&changeEvent)
-			if err != nil {
-				log.Fatal(err)
-			}
-			eventItem := changeEvent["fullDocument"].(map[string]interface{})
-
-			asset := eventItem["asset"].(string)
-			event := eventItem["eventname"].(string)
-
-			fmt.Println(event == "AddAsset", asset)
-			if event == "AddAsset" {
-				assetArr := []string{asset}
-				err = apiClent.ScanNep11Data(assetArr)
-				if err != nil {
-					fmt.Println("watching Error :: scan data err: ", err)
-				}
-			}
-		}
-	}()
-
-	//// scan data
-	fmt.Println("scaning.....")
-	assetArr, err := apiClent.GetMarketWhiteList()
-	//assetArr := []string{}
-	if err != nil {
-		log.Fatal("getwhitelist error: ", err)
-	}
-	err = apiClent.ScanNep11Data(assetArr)
-
-	if err != nil {
-		fmt.Println("Error :: scan data err: ", err)
-	}
+	////watching.....
+	//go func() {
+	//	rt := os.ExpandEnv("${RUNTIME}")
+	//	market := consts.Market_Main
+	//	switch rt {
+	//	case "test":
+	//		market = consts.Market_Test
+	//	case "staging":
+	//		market = consts.Market_Main
+	//	default:
+	//		fmt.Sprintf("runtime environment mismatch")
+	//	}
+	//
+	//	fmt.Println(market)
+	//	conn, err := apiClent.GetCollection(struct{ Collection string }{Collection: "MarketNotification"})
+	//	if err != nil {
+	//		fmt.Println("conn :", err)
+	//	}
+	//	cs, err := conn.Watch(context.TODO(), mongo.Pipeline{})
+	//	//cs, err := conn.Watch(context.TODO(),mongo.Pipeline{bson.D{{"$match", bson.D{{"market", market},{"eventname", "AddAsset"}}}}})
+	//	if err != nil {
+	//		//return nil,err
+	//		fmt.Println("watch error:", err)
+	//	}
+	//	fmt.Println("watching.....")
+	//
+	//	for cs.Next(context.TODO()) {
+	//		fmt.Println("watching addAsset")
+	//		var changeEvent map[string]interface{}
+	//		err := cs.Decode(&changeEvent)
+	//		if err != nil {
+	//			log.Fatal(err)
+	//		}
+	//		eventItem := changeEvent["fullDocument"].(map[string]interface{})
+	//
+	//		asset := eventItem["asset"].(string)
+	//		event := eventItem["eventname"].(string)
+	//
+	//		fmt.Println(event == "AddAsset", asset)
+	//		if event == "AddAsset" {
+	//			assetArr := []string{asset}
+	//			err = apiClent.ScanNep11Data(assetArr)
+	//			if err != nil {
+	//				fmt.Println("watching Error :: scan data err: ", err)
+	//			}
+	//		}
+	//	}
+	//}()
+	//
+	////// scan data
+	//fmt.Println("scaning.....")
+	//assetArr, err := apiClent.GetMarketWhiteList()
+	////assetArr := []string{}
+	//if err != nil {
+	//	log.Fatal("getwhitelist error: ", err)
+	//}
+	//err = apiClent.ScanNep11Data(assetArr)
+	//
+	//if err != nil {
+	//	fmt.Println("Error :: scan data err: ", err)
+	//}
 
 	router.Run(":8080")
 

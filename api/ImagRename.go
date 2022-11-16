@@ -9,7 +9,9 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path"
 	"strconv"
+	"strings"
 )
 
 func ImagRename(src string, to string, baseuri string) error {
@@ -20,6 +22,41 @@ func ImagRename(src string, to string, baseuri string) error {
 	} // 获取文件名组成的切片，并遍历打印每一个文件名
 	for _, file := range files {
 		name := file.Name()
+		oldname := baseuri + name
+		newfilename := imgname(oldname)
+
+		err = CopyAndRename(src+"\\"+file.Name(), to+"\\"+newfilename)
+		if err != nil {
+			return err
+		}
+		fmt.Println(name)
+	}
+
+	return nil
+}
+
+func ImagRenameIlex(src string, to string, baseurl1 string, baseurl2 string) error {
+
+	files, err := ioutil.ReadDir(src)
+	if err != nil {
+		panic(err)
+	} // 获取文件名组成的切片，并遍历打印每一个文件名
+	var baseuri string
+	for _, file := range files {
+		name := file.Name()
+		filenameWithSuffix := path.Base(name)
+		fileSuffix := path.Ext(filenameWithSuffix)
+		filenameOnly := strings.TrimSuffix(filenameWithSuffix, fileSuffix)
+		num, err := strconv.ParseInt(filenameOnly, 10, 64)
+		if err != nil {
+			return err
+		}
+		if num > 2000 {
+			baseuri = baseurl2
+		} else {
+			baseuri = baseurl1
+		}
+
 		oldname := baseuri + name
 		newfilename := imgname(oldname)
 

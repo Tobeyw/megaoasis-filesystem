@@ -97,6 +97,20 @@ func main() {
 
 	})
 
+	router.POST("/renameIlex", func(c *gin.Context) {
+		srcdir := c.PostForm("srcdir")
+		dstdir := c.PostForm("dstdir")
+		baseuri1 := c.PostForm("baseuri1")
+		baseuri2 := c.PostForm("baseuri2")
+		err := api.ImagRenameIlex(srcdir, dstdir, baseuri1, baseuri2)
+		if err != nil {
+			c.String(http.StatusBadRequest, "copyRename err", err)
+		} else {
+			c.String(http.StatusOK, "copyRename success")
+		}
+
+	})
+
 	router.POST("/upload", func(c *gin.Context) {
 		asset := c.PostForm("asset")
 		tokenid := c.PostForm("tokenid")

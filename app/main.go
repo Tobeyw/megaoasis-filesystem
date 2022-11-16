@@ -83,6 +83,18 @@ func main() {
 
 	})
 
+	router.GET("/json/:asset/:tokenid", func(c *gin.Context) {
+		pwd, _ := os.Getwd()
+		time.Sleep(1 * time.Second)
+		asset := c.Param("asset")
+		tokenid := c.Param("tokenid")
+		//imagepath := pwd + "\\image\\" + asset + "\\thumbnail\\" + tokenid
+		jsonpath := pwd + "/image/" + asset + "/json/" + tokenid
+
+		c.File(jsonpath)
+
+	})
+
 	router.POST("/rename", func(c *gin.Context) {
 		srcdir := c.PostForm("srcdir")
 		dstdir := c.PostForm("dstdir")

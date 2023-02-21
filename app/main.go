@@ -83,6 +83,21 @@ func main() {
 
 	})
 
+	router.GET("/totalsupply/:asset", func(c *gin.Context) {
+
+		time.Sleep(1 * time.Second)
+
+		asset := c.Param("asset")
+
+		totalsupply, err := apiClent.GetTotalSupplyByAsset(asset)
+		if err != nil {
+			c.String(http.StatusBadRequest, "get data:", err)
+		} else {
+			c.JSON(http.StatusOK, gin.H{"totalSupply": totalsupply})
+		}
+
+	})
+
 	router.GET("/json/:asset/:tokenid", func(c *gin.Context) {
 		pwd, _ := os.Getwd()
 		time.Sleep(1 * time.Second)

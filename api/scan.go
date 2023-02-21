@@ -8,16 +8,20 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"io"
+	"io/ioutil"
 	"log"
+	"metaoasis-filesystem/consts"
 	"metaoasis-filesystem/model"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
+
 type T struct {
-	Client *model.T
+	Client      *model.T
 	MysqlClient *model.AssetListDao
 }
 
@@ -27,7 +31,6 @@ func (me *T) GetCollection(args struct {
 	collection := me.Client.C_online.Database(me.Client.Db_online).Collection(args.Collection)
 	return collection, nil
 }
-
 
 func (me *T) ScanNep11Data(assetArr []string) error {
 	//
@@ -47,7 +50,7 @@ func (me *T) ScanNep11Data(assetArr []string) error {
 		Collection: "Nep11Properties",
 		Index:      "scandata",
 		Sort:       bson.M{},
-		Filter:     bson.M{"asset":bson.M{"$in":assetArr},"properties":bson.M{"$ne":"{}"}},
+		Filter:     bson.M{"asset": bson.M{"$in": assetArr}, "properties": bson.M{"$ne": "{}"}},
 		Query:      []string{},
 	}, ret)
 
@@ -55,6 +58,7 @@ func (me *T) ScanNep11Data(assetArr []string) error {
 		return err
 	}
 	result := make([]*model.AssetList, 0)
+	currentPath, err := os.Getwd()
 	for _, item := range r1 {
 		//获取nft 属性
 		asset := item["asset"].(string)
@@ -71,6 +75,20 @@ func (me *T) ScanNep11Data(assetArr []string) error {
 					if ok {
 						image = img.(string)
 					}
+					tokenuri, ok := data["tokenURI"]
+					if ok {
+						if image == "" {
+							checkpath := currentPath + "/image/" + asset + "/" + imgname(image)
+							isExit, _ := PathExists(checkpath)
+							if isExit {
+								continue
+							}
+							image, err = GetImgFromTokenURL(tokenurl(tokenuri.(string)))
+							if err != nil {
+								return err
+							}
+						}
+					}
 					thb, ok6 := data["thumbnail"]
 					if ok6 {
 						tb, err22 := base64.URLEncoding.DecodeString(thb.(string))
@@ -78,6 +96,8 @@ func (me *T) ScanNep11Data(assetArr []string) error {
 							return err22
 						}
 						thumbnail = string(tb[:])
+					} else {
+						thumbnail = image
 					}
 				} else {
 					return err
@@ -86,11 +106,11 @@ func (me *T) ScanNep11Data(assetArr []string) error {
 			}
 		}
 
-		if image != ""{
+		if image != "" {
 			nft := model.AssetList{
-				Asset: asset,
-				TokenId: tokenid,
-				Image: image,
+				Asset:     asset,
+				TokenId:   tokenid,
+				Image:     image,
 				Thumbnail: thumbnail,
 				Timestamp: time.Now().Unix(),
 			}
@@ -99,62 +119,88 @@ func (me *T) ScanNep11Data(assetArr []string) error {
 	}
 	// insert mysql database
 	//me.MysqlClient.BatchesCreate(result)
-	for i,item := range result {
-		  go LoadAndSave(me,item)
-
-		  if i == len(result)-1{
-
-		  }
+	for i, item := range result {
+		go LoadAndSave(me, item)
+		if i == len(result)-1 {
+		}
 	}
-
 
 	return nil
 }
 
-func LoadAndSave(me *T,list *model.AssetList)  error{
+func GetImgFromTokenURL(tokenurl string) (string, error) {
+	var image string
+	response, err := http.Get(tokenurl)
+	if err != nil {
+		log.Println("http get error: ", err)
+		return "", err
+	}
+	defer response.Body.Close()
+	body, err2 := ioutil.ReadAll(response.Body)
+	if err2 != nil {
+		log.Println("ioutil read error: ", err)
+	}
+	jsonData := make(map[string]interface{})
+	//fmt.Println(string(body))
+	err = json.Unmarshal([]byte(string(body)), &jsonData)
+	if err != nil {
+		log.Println("imag from json error :", err, tokenurl)
+		return "", nil
+	}
+	//处理ipfs
+	ipfs := jsonData["image"].(string)
+	str := strings.Replace(ipfs, ":", "", 1)
+	image = "https://" + consts.IPFS_GATEWAY + "/" + str
+	return image, nil
+}
+func LoadAndSave(me *T, list *model.AssetList) error {
 	image := list.Image
 	thumbnail := list.Thumbnail
-    asset := list.Asset
-	tokenid := list.TokenId
-
-	//查看本地数据库是否存在
-	assetLocal,found, _ := me.MysqlClient.FindByAssetTokenid(asset,tokenid)
-	if  found==false || (found == false && assetLocal.Image == ""){
-		currentPath,err:= os.Getwd()
-		if err != nil{
-			return err
-		}
-		// download image
-		if image != ""{
-			imagePath := createDateDir(currentPath+"/image/",asset+"/image/")
-			path := imagePath + "/" + tokenid
-			err := LoadImage(image,path)
-			if err !=nil {
-				return err
-			}
-			list.Image = "/image/"+asset + "/image/" +tokenid
-		}
-		if thumbnail != ""{
-			thumbnailPath := createDateDir(currentPath+"/image/",asset+"/thumbnail/")
-			path := thumbnailPath  + "/" + tokenid
-			err := LoadImage(thumbnail,path)
-			if err !=nil {
-				return err
-			}
-			list.Thumbnail =  "/image/"+asset + "/thumbnail/" +tokenid
-		}
-
-		err = me.MysqlClient.Create(list)
+	asset := list.Asset
+	//tokenid := list.TokenId
+	currentPath, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	//查看本地是否存在数据
+	d := imgname(image)
+	fmt.Println(d)
+	checkpath := currentPath + "/image/" + asset + "/" + imgname(image)
+	isExit, _ := PathExists(checkpath)
+	if !isExit {
 		if err != nil {
 			return err
 		}
-        fmt.Println("update one record successfully")
-	}
+		// download image
+		if image != "" {
+			imagePath := CreateDateDir(currentPath+"/image/", asset+"/image/")
+			path := imagePath + "/" + imgname(image)
+			err := LoadImage(image, path)
+			if err != nil {
+				return err
+			}
+			list.Image = "/image/" + asset + "/image/" + imgname(image)
+		}
+		if thumbnail != "" {
+			thumbnailPath := CreateDateDir(currentPath+"/image/", asset+"/thumbnail/")
+			path := thumbnailPath + "/" + imgname(thumbnail)
+			err := LoadImage(thumbnail, path)
+			if err != nil {
+				return err
+			}
+			list.Thumbnail = "/image/" + asset + "/thumbnail/" + imgname(thumbnail)
+		}
 
+		//err = me.MysqlClient.Create(list)
+		//if err != nil {
+		//	return err
+		//}
+		fmt.Println("update one record successfully")
+	}
 
 	return nil
 }
-func LoadImage(imagurl string,path string) error {
+func LoadImage(imagurl string, path string) error {
 
 	_, err := url.ParseRequestURI(imagurl)
 	if err != nil {
@@ -164,10 +210,10 @@ func LoadImage(imagurl string,path string) error {
 	//client.Timeout = time.Second * 120 //设置超时时间
 	resp, err := client.Get(imagurl)
 	if err != nil {
-		fmt.Println(fmt.Errorf("cannot fetch URL %q:%q,%v", imagurl,path, err))
+		fmt.Println(fmt.Errorf("cannot fetch URL %q:%q,%v", imagurl, path, err))
 	}
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println(fmt.Errorf("unexpected http GET status %q:%q,%s",imagurl,path, resp.Status))
+		fmt.Println(fmt.Errorf("unexpected http GET status %q:%q,%s", imagurl, path, resp.Status))
 	}
 	if resp.ContentLength <= 0 {
 		log.Println("[*] Destination server does not support breakpoint download.")
@@ -183,12 +229,12 @@ func LoadImage(imagurl string,path string) error {
 		panic(err)
 	}
 
-	wt :=bufio.NewWriter(out)
+	wt := bufio.NewWriter(out)
 
 	defer out.Close()
 
-	n, err :=io.Copy(wt, resp.Body)
-	fmt.Println("write" , n)
+	n, err := io.Copy(wt, resp.Body)
+	fmt.Println("write", n)
 	if err != nil {
 		panic(err)
 	}
@@ -197,9 +243,7 @@ func LoadImage(imagurl string,path string) error {
 	return nil
 }
 
-
-
-func createDateDir(basepath string,folderName string) string {
+func CreateDateDir(basepath string, folderName string) string {
 
 	folderPath := filepath.Join(basepath, folderName)
 	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
@@ -215,13 +259,32 @@ func createDateDir(basepath string,folderName string) string {
 	return folderPath
 }
 
-// check file exist
-func isDirExist(filename string) bool {
-	_, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	//当为空文件或文件夹存在
+	if err == nil {
+		return true, nil
 	}
-	return true
+	//os.IsNotExist(err)为true，文件或文件夹不存在
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	//其它类型，不确定是否存在
+	return false, err
 }
 
+func tokenurl(url string) string {
 
+	str := url[:4]
+	if str == "ipfs" {
+		gateway := "https://cloudflare-ipfs.com"
+		httpurl := strings.Replace(url, "ipfs.io", gateway, 1)
+		return httpurl
+	}
+
+	return url
+}
+
+func imgname(url string) string {
+	return strings.ReplaceAll(url, "/", "")
+}

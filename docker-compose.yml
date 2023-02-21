@@ -8,9 +8,11 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - network
+          - network
     restart: always
     container_name: megaoasis_filesystem_${RUNTIME}
     volumes:
       - ./logs:/go/application/Logs/
-      - /opt/megaoasis-image/magnet:./logs:/go/application/image/
+      - /opt/megaoasis-image/magnet/:/go/application/image/
+networks:
+  network:

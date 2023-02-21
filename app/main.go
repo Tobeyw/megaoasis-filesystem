@@ -93,7 +93,7 @@ func main() {
 		if err != nil {
 			c.String(http.StatusBadRequest, "get data:", err)
 		} else {
-			c.JSON(http.StatusOK, gin.H{"totalSupply": totalsupply})
+			c.JSON(http.StatusOK, totalsupply)
 		}
 
 	})

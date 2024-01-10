@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/robfig/cron/v3"
 	"log"
 	"metaoasis-filesystem/api"
+	"metaoasis-filesystem/cache"
 	"metaoasis-filesystem/config"
 	"metaoasis-filesystem/model"
 	"net/http"
@@ -28,6 +30,11 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+	redisCli, err := cache.InitRedis("172.17.0.1:6379", "")
+	if err != nil {
+		fmt.Println("failed to redis:", err)
+	}
+
 	mongoClient := model.T{
 		Db_online: mongoOnline,
 		C_online:  mongoColl,
@@ -40,6 +47,7 @@ func main() {
 	apiClent := api.T{
 		Client:      &mongoClient,
 		MysqlClient: assetDAO,
+		CacheClient: redisCli,
 	}
 	fmt.Println(apiClent)
 	//listening.....
@@ -197,6 +205,32 @@ func main() {
 		}
 
 	})
+	//   cache price data
+
+	go func() {
+		c := cron.New()
+		c.AddFunc("@hourly", func() {
+			neoPrice, err := api.GetAllPrice("neo")
+			if err != nil {
+				fmt.Println(err)
+			}
+			gasPrice, err := api.GetAllPrice("gas")
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			err = redisCli.SetCacheNeoPrice(neoPrice)
+			if err != nil {
+				fmt.Println(err)
+			}
+			err = redisCli.SetCacheGASPrice(gasPrice)
+			if err != nil {
+				fmt.Println(err)
+			}
+		})
+		c.Start()
+		select {}
+	}()
 
 	////watching.....
 	//go func() {

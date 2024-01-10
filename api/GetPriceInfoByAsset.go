@@ -6,6 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"math"
 	"math/big"
+	"metaoasis-filesystem/cache"
 )
 
 func (me *T) GetPriceInfoByAsset(hash string) ([]map[string]interface{}, error) {
@@ -42,6 +43,19 @@ func (me *T) GetPriceInfoByAsset(hash string) ([]map[string]interface{}, error) 
 		if err != nil {
 			return nil, err
 		}
+		// GET price from cache
+		var gasPrice, neoPrice *cache.Price
+		if r1[0]["symbol"].(string) == "GAS" {
+			gasPrice, err = me.CacheClient.GetCacheGASPrice()
+			if err != nil {
+				return nil, err
+			}
+		} else if r1[0]["symbol"].(string) == "NEO" {
+			neoPrice, err = me.CacheClient.GetCacheNeoPrice()
+			if err != nil {
+				return nil, err
+			}
+		}
 
 		for i := 0; i < len(currencyCode); i++ {
 			re := make(map[string]interface{})
@@ -55,6 +69,38 @@ func (me *T) GetPriceInfoByAsset(hash string) ([]map[string]interface{}, error) 
 			re["provider"] = "NGD"
 			re["lastUpdatedTimestamp"] = nil
 			result = append(result, re)
+			if re["symbol"].(string) == "GAS" {
+				switch currencyCode[i] {
+				case "KRW":
+					re["price"] = gasPrice.KRW
+				case "USD":
+					re["price"] = gasPrice.USD
+				case "IDR":
+					re["price"] = gasPrice.IDR
+				case "SGD":
+					re["price"] = gasPrice.SGD
+				case "THB":
+					re["price"] = gasPrice.THB
+				default:
+					re["price"] = nil
+				}
+			} else if re["symbol"].(string) == "NEO" {
+				switch currencyCode[i] {
+				case "KRW":
+					re["price"] = neoPrice.KRW
+				case "USD":
+					re["price"] = neoPrice.USD
+				case "IDR":
+					re["price"] = neoPrice.IDR
+				case "SGD":
+					re["price"] = neoPrice.SGD
+				case "THB":
+					re["price"] = neoPrice.THB
+				default:
+					re["price"] = nil
+				}
+			}
+
 		}
 	}
 

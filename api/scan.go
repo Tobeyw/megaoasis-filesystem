@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"metaoasis-filesystem/cache"
 	"metaoasis-filesystem/consts"
 	"metaoasis-filesystem/model"
 	"net/http"
@@ -23,6 +24,7 @@ import (
 type T struct {
 	Client      *model.T
 	MysqlClient *model.AssetListDao
+	CacheClient *cache.RedisCli
 }
 
 func (me *T) GetCollection(args struct {

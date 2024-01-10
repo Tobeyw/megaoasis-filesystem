@@ -14,5 +14,19 @@ services:
     volumes:
       - ./logs:/go/application/Logs/
       - /opt/megaoasis-image/magnet/:/go/application/image/
+    depends_on:
+      - redis
+
+  redis:
+    image: redis
+    networks:
+      - network
+    restart: always
+    ports:
+      - "6379:6379"
+    container_name: megaoasis_filesystem_cache_${RUNTIME}
+
 networks:
   network:
+
+

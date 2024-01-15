@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"math"
@@ -114,5 +115,7 @@ func (me *T) GetPriceInfoByAsset(hash string) ([]map[string]interface{}, error) 
 func calculateMarketCap(maxSupplay *big.Int, price interface{}) interface{} {
 	priceData := price.(float64)
 	s := new(big.Float).SetInt(maxSupplay)
-	return s.Mul(s, new(big.Float).SetFloat64(priceData))
+	muldata := s.Mul(s, new(big.Float).SetFloat64(priceData))
+
+	return fmt.Sprintf("%.3f\n", muldata)
 }

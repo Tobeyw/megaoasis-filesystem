@@ -113,6 +113,6 @@ func (me *T) GetPriceInfoByAsset(hash string) ([]map[string]interface{}, error) 
 
 func calculateMarketCap(maxSupplay *big.Int, price interface{}) interface{} {
 	priceData := price.(float64)
-	s, _ := maxSupplay.Float64()
-	return s * priceData
+	s := new(big.Float).SetInt(maxSupplay)
+	return s.Mul(s, new(big.Float).SetFloat64(priceData))
 }

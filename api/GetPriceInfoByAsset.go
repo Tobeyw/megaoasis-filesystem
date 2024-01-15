@@ -117,5 +117,5 @@ func calculateMarketCap(maxSupplay *big.Int, price interface{}) interface{} {
 	s := new(big.Float).SetInt(maxSupplay)
 	muldata := s.Mul(s, new(big.Float).SetFloat64(priceData))
 
-	return fmt.Sprintf("%.3f\n", muldata)
+	return fmt.Sprintf("%.2f", muldata)
 }

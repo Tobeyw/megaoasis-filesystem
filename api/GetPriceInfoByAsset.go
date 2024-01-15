@@ -101,8 +101,18 @@ func (me *T) GetPriceInfoByAsset(hash string) ([]map[string]interface{}, error) 
 				}
 			}
 
+			if re["price"] != nil {
+				re["marketCap"] = calculateMarketCap(totalsupply, re["price"])
+			}
+
 		}
 	}
 
 	return result, nil
+}
+
+func calculateMarketCap(maxSupplay *big.Int, price interface{}) interface{} {
+	priceData := price.(float64)
+	s, _ := maxSupplay.Float64()
+	return s * priceData
 }

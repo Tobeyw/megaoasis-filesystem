@@ -10,15 +10,20 @@ const (
 	CACHE_KEY_GAS = "CACHE_GAS"
 )
 
-type Price struct {
-	KRW interface{}
-	USD interface{}
-	IDR interface{}
-	SGD interface{}
-	THB interface{}
+type Currency struct {
+	Price      interface{}
+	UpdateTime interface{}
 }
 
-func (r *RedisCli) SetCacheNeoPrice(data Price) (err error) {
+type CurrencyList struct {
+	KRW Currency
+	USD Currency
+	IDR Currency
+	SGD Currency
+	THB Currency
+}
+
+func (r *RedisCli) SetCacheNeoPrice(data CurrencyList) (err error) {
 	strdata, _ := json.Marshal(data)
 	err = r.rdb.Set(CACHE_KEY_NEO, strdata, 0).Err()
 	if err != nil {
@@ -28,7 +33,7 @@ func (r *RedisCli) SetCacheNeoPrice(data Price) (err error) {
 	return nil
 }
 
-func (r *RedisCli) SetCacheGASPrice(data Price) (err error) {
+func (r *RedisCli) SetCacheGASPrice(data CurrencyList) (err error) {
 	strdata, _ := json.Marshal(data)
 	err = r.rdb.Set(CACHE_KEY_GAS, strdata, 0).Err()
 	if err != nil {
@@ -38,7 +43,7 @@ func (r *RedisCli) SetCacheGASPrice(data Price) (err error) {
 	return nil
 }
 
-func (r *RedisCli) GetCacheNeoPrice() (data *Price, err error) {
+func (r *RedisCli) GetCacheNeoPrice() (data *CurrencyList, err error) {
 	res, err := r.rdb.Get(CACHE_KEY_NEO).Result()
 	if err != nil {
 		log.Println("GET redis neo  price error:", err)
@@ -48,7 +53,7 @@ func (r *RedisCli) GetCacheNeoPrice() (data *Price, err error) {
 	return data, nil
 }
 
-func (r *RedisCli) GetCacheGASPrice() (data *Price, err error) {
+func (r *RedisCli) GetCacheGASPrice() (data *CurrencyList, err error) {
 	res, err := r.rdb.Get(CACHE_KEY_GAS).Result()
 	if err != nil {
 		log.Println("GET redis gas price error:", err)

@@ -45,7 +45,7 @@ func (me *T) GetPriceInfoByAsset(hash string) ([]map[string]interface{}, error) 
 			return nil, err
 		}
 		// GET price from cache
-		var gasPrice, neoPrice *cache.Price
+		var gasPrice, neoPrice *cache.CurrencyList
 		if r1[0]["symbol"].(string) == "GAS" {
 			gasPrice, err = me.CacheClient.GetCacheGASPrice()
 			if err != nil {
@@ -73,30 +73,40 @@ func (me *T) GetPriceInfoByAsset(hash string) ([]map[string]interface{}, error) 
 			if re["symbol"].(string) == "GAS" {
 				switch currencyCode[i] {
 				case "KRW":
-					re["price"] = gasPrice.KRW
+					re["price"] = gasPrice.KRW.Price
+					re["lastUpdatedTimestamp"] = gasPrice.KRW.UpdateTime
 				case "USD":
-					re["price"] = gasPrice.USD
+					re["price"] = gasPrice.USD.Price
+					re["lastUpdatedTimestamp"] = gasPrice.USD.UpdateTime
 				case "IDR":
-					re["price"] = gasPrice.IDR
+					re["price"] = gasPrice.IDR.Price
+					re["lastUpdatedTimestamp"] = gasPrice.IDR.UpdateTime
 				case "SGD":
-					re["price"] = gasPrice.SGD
+					re["price"] = gasPrice.SGD.Price
+					re["lastUpdatedTimestamp"] = gasPrice.SGD.UpdateTime
 				case "THB":
-					re["price"] = gasPrice.THB
+					re["price"] = gasPrice.THB.Price
+					re["lastUpdatedTimestamp"] = gasPrice.THB.UpdateTime
 				default:
 					re["price"] = nil
 				}
 			} else if re["symbol"].(string) == "NEO" {
 				switch currencyCode[i] {
 				case "KRW":
-					re["price"] = neoPrice.KRW
+					re["price"] = neoPrice.KRW.Price
+					re["lastUpdatedTimestamp"] = neoPrice.KRW.UpdateTime
 				case "USD":
-					re["price"] = neoPrice.USD
+					re["price"] = neoPrice.USD.Price
+					re["lastUpdatedTimestamp"] = neoPrice.USD.UpdateTime
 				case "IDR":
-					re["price"] = neoPrice.IDR
+					re["price"] = neoPrice.IDR.Price
+					re["lastUpdatedTimestamp"] = neoPrice.IDR.UpdateTime
 				case "SGD":
-					re["price"] = neoPrice.SGD
+					re["price"] = neoPrice.SGD.Price
+					re["lastUpdatedTimestamp"] = neoPrice.SGD.UpdateTime
 				case "THB":
-					re["price"] = neoPrice.THB
+					re["price"] = neoPrice.THB.Price
+					re["lastUpdatedTimestamp"] = neoPrice.THB.UpdateTime
 				default:
 					re["price"] = nil
 				}

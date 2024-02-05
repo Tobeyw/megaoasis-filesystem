@@ -4,33 +4,48 @@ import (
 	"metaoasis-filesystem/cache"
 )
 
-func GetAllPrice(asset string) (cache.Price, error) {
-	USD, err := GetPriceFromCoinMarketMap("USD", asset)
+func GetAllPrice(asset string) (cache.CurrencyList, error) {
+	USD, usdUpdateTime, err := GetPriceFromCoinMarketMap("USD", asset)
 	if err != nil {
-		return cache.Price{}, err
+		return cache.CurrencyList{}, err
 	}
-	KRW, err := GetPriceFromCoinMarketMap("KRW", asset)
+	KRW, krwUpdateTime, err := GetPriceFromCoinMarketMap("KRW", asset)
 	if err != nil {
-		return cache.Price{}, err
+		return cache.CurrencyList{}, err
 	}
-	IDR, err := GetPriceFromCoinMarketMap("IDR", asset)
+	IDR, idrUpdateTime, err := GetPriceFromCoinMarketMap("IDR", asset)
 	if err != nil {
-		return cache.Price{}, err
+		return cache.CurrencyList{}, err
 	}
-	THB, err := GetPriceFromCoinMarketMap("THB", asset)
+	THB, thbUpdateTime, err := GetPriceFromCoinMarketMap("THB", asset)
 	if err != nil {
-		return cache.Price{}, err
+		return cache.CurrencyList{}, err
 	}
-	SGD, err := GetPriceFromCoinMarketMap("SGD", asset)
+	SGD, sgdUpdateTime, err := GetPriceFromCoinMarketMap("SGD", asset)
 	if err != nil {
-		return cache.Price{}, err
+		return cache.CurrencyList{}, err
 	}
 
-	return cache.Price{
-		USD: USD,
-		KRW: KRW,
-		IDR: IDR,
-		THB: THB,
-		SGD: SGD,
+	return cache.CurrencyList{
+		USD: cache.Currency{
+			Price:      USD,
+			UpdateTime: usdUpdateTime,
+		},
+		KRW: cache.Currency{
+			Price:      KRW,
+			UpdateTime: krwUpdateTime,
+		},
+		IDR: cache.Currency{
+			Price:      IDR,
+			UpdateTime: idrUpdateTime,
+		},
+		THB: cache.Currency{
+			Price:      THB,
+			UpdateTime: thbUpdateTime,
+		},
+		SGD: cache.Currency{
+			Price:      SGD,
+			UpdateTime: sgdUpdateTime,
+		},
 	}, nil
 }

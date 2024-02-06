@@ -52,10 +52,9 @@ func GetPriceFromCoinMarketMap(covert string, slug string) (interface{}, interfa
 			lastUpdateTime = strings.Replace(lastUpdateTime, "T", " ", 1)
 			lastUpdateTime = strings.Replace(lastUpdateTime, "Z", "", 1)
 
-			setDate := "2024-02-05 02:59:00.000" //2024-02-05T02:59:00.000Z
 			dateFormate := "2006-01-02 15:04:05"
-			loc, _ := time.LoadLocation("UTC")                              //重要：获取时区
-			timeObj, err := time.ParseInLocation(dateFormate, setDate, loc) //指定日期 转 当地 日期对象 类型为 time.Time
+			loc, _ := time.LoadLocation("UTC")                                     //重要：获取时区
+			timeObj, err := time.ParseInLocation(dateFormate, lastUpdateTime, loc) //指定日期 转 当地 日期对象 类型为 time.Time
 
 			if err != nil {
 				fmt.Println("parse time failed err :", err)
